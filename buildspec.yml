@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 880237874876.dkr.ecr.us-west-2.amazonaws.com/test-ecr
+      - echo login successfull
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t temp-ecr:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+      - docker tag temp-ecr:$CODEBUILD_RESOLVED_SOURCE_VERSION 880237874876.dkr.ecr.us-west-2.amazonaws.com/test-ecr/temp-ecr:$CODEBUILD_RESOLVED_SOURCE_VERSION
+  post_build:
+    commands:
+      - echo Pushing Docker image to Amazon ECR...
+      - docker push 880237874876.dkr.ecr.us-west-2.amazonaws.com/test-ecr:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo success
